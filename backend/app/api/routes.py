@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 
 from app.services.prediction import PredictionService
 from app.services.model_trainer import ModelTrainingService

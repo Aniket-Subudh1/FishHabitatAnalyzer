@@ -155,7 +155,7 @@ class PredictionResponse(BaseModel):
 
 class TrainingRequest(BaseModel):
     """Schema for model training request."""
-    model_type: str = Field(..., description="Type of model to train (basic/advanced)")
+    model_type: str = Field(..., description="Type of model to train (basic/advanced/water_quality)")
     test_size: float = Field(0.2, description="Proportion of data to use for testing")
     random_state: int = Field(42, description="Random seed for reproducibility")
     
@@ -170,8 +170,8 @@ class TrainingRequest(BaseModel):
     )
 
 
-class TrainingResponse(BaseModel):
-    """Schema for training response."""
+class ClassificationTrainingResponse(BaseModel):
+    """Schema for classification model training response."""
     model_type: str
     accuracy: float
     f1_score: float
@@ -185,7 +185,53 @@ class TrainingResponse(BaseModel):
                 "accuracy": 0.89,
                 "f1_score": 0.87,
                 "training_time": 12.5,
-                "model_path": "models/fish_prediction_model.pkl"
+                "model_path": "models/advanced_fish_prediction_model.pkl"
+            }
+        }
+    )
+
+
+class RegressionTrainingResponse(BaseModel):
+    """Schema for regression model training response."""
+    model_type: str
+    mse: float
+    r2_score: float
+    training_time: float
+    model_path: str
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "model_type": "water_quality",
+                "mse": 0.03,
+                "r2_score": 0.95,
+                "training_time": 10.2,
+                "model_path": "models/water_quality_model.pkl"
+            }
+        }
+    )
+
+
+class TrainingResponse(BaseModel):
+    """Union schema for any training response."""
+    model_type: str
+    training_time: float
+    model_path: str
+    # Optional fields for classification models
+    accuracy: Optional[float] = None
+    f1_score: Optional[float] = None
+    # Optional fields for regression models
+    mse: Optional[float] = None
+    r2_score: Optional[float] = None
+    
+    model_config = ConfigDict(
+        json_schema_extra={
+            "example": {
+                "model_type": "advanced",
+                "accuracy": 0.89,
+                "f1_score": 0.87,
+                "training_time": 12.5,
+                "model_path": "models/advanced_fish_prediction_model.pkl"
             }
         }
     )

@@ -267,6 +267,55 @@ class PredictionService:
         
         return analysis
     
+    def _get_suitable_species_basic(self, data: Dict[str, float]) -> List[str]:
+        """Determine suitable fish species based on basic water parameters."""
+        ph = data.get('ph', 7.0)
+        temperature = data.get('temperature', 25.0)
+        turbidity = data.get('turbidity', 50.0)
+        
+        suitable_species = []
+        
+        for species_name, info in self.fish_species_info.items():
+            ph_range = info.ideal_ph_range or [6.0, 8.5]
+            temp_range = info.ideal_temperature_range or [18.0, 32.0]
+            turbidity_range = info.ideal_turbidity_range or [20.0, 80.0]
+            
+            if (ph_range[0] <= ph <= ph_range[1] and
+                temp_range[0] <= temperature <= temp_range[1] and
+                turbidity_range[0] <= turbidity <= turbidity_range[1]):
+                suitable_species.append(species_name)
+        
+        return suitable_species
+    
+    def _get_suitable_species_advanced(self, data: Dict[str, float]) -> List[str]:
+        """Determine suitable fish species based on advanced water parameters."""
+        # Start with basic parameters check
+        suitable_from_basic = self._get_suitable_species_basic(data)
+        
+        # Additional filtering based on advanced parameters
+        do = data.get('dissolved_oxygen', 6.0)
+        ammonia = data.get('ammonia', 0.05)
+        nitrite = data.get('nitrite', 0.01)
+        
+        suitable_species = []
+        
+        for species in suitable_from_basic:
+            # Apply additional criteria based on species requirements
+            if species == "Salmon" or species == "Trout":
+                # Cold water species need high oxygen
+                if do >= 7.0 and ammonia < 0.05 and nitrite < 0.01:
+                    suitable_species.append(species)
+            elif species == "Tilapia" or species == "Catfish" or species == "Carp":
+                # More tolerant species
+                if do >= 4.0:
+                    suitable_species.append(species)
+            else:
+                # Default case
+                if do >= 5.0 and ammonia < 0.1 and nitrite < 0.05:
+                    suitable_species.append(species)
+        
+        return suitable_species
+    
     def _analyze_parameters_advanced(self, data: Dict[str, float]) -> Dict[str, Dict[str, Any]]:
         """Analyze advanced water parameters and provide status and recommendations."""
         # Start with basic analysis
@@ -317,54 +366,3 @@ class PredictionService:
                 'status': nitrite_status,
                 'recommendation': nitrite_recommendation
             }
-        
-        return analysis
-    
-    def _get_suitable_species_basic(self, data: Dict[str, float]) -> List[str]:
-        """Determine suitable fish species based on basic water parameters."""
-        ph = data.get('ph', 7.0)
-        temperature = data.get('temperature', 25.0)
-        turbidity = data.get('turbidity', 50.0)
-        
-        suitable_species = []
-        
-        for species_name, info in self.fish_species_info.items():
-            ph_range = info.ideal_ph_range or [6.0, 8.5]
-            temp_range = info.ideal_temperature_range or [18.0, 32.0]
-            turbidity_range = info.ideal_turbidity_range or [20.0, 80.0]
-            
-            if (ph_range[0] <= ph <= ph_range[1] and
-                temp_range[0] <= temperature <= temp_range[1] and
-                turbidity_range[0] <= turbidity <= turbidity_range[1]):
-                suitable_species.append(species_name)
-        
-        return suitable_species
-    
-    def _get_suitable_species_advanced(self, data: Dict[str, float]) -> List[str]:
-        """Determine suitable fish species based on advanced water parameters."""
-        # Start with basic parameters check
-        suitable_from_basic = self._get_suitable_species_basic(data)
-        
-        # Additional filtering based on advanced parameters
-        do = data.get('dissolved_oxygen', 6.0)
-        ammonia = data.get('ammonia', 0.05)
-        nitrite = data.get('nitrite', 0.01)
-        
-        suitable_species = []
-        
-        for species in suitable_from_basic:
-            # Apply additional criteria based on species requirements
-            if species == "Salmon" or species == "Trout":
-                # Cold water species need high oxygen
-                if do >= 7.0 and ammonia < 0.05 and nitrite < 0.01:
-                    suitable_species.append(species)
-            elif species == "Tilapia" or species == "Catfish" or species == "Carp":
-                # More tolerant species
-                if do >= 4.0:
-                    suitable_species.append(species)
-            else:
-                # Default case
-                if do >= 5.0 and ammonia < 0.1 and nitrite < 0.05:
-                    suitable_species.append(species)
-        
-        return suitable_species

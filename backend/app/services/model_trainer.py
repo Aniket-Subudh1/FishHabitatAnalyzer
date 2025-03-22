@@ -18,7 +18,7 @@ class ModelTrainingService:
     def __init__(self):
         """Initialize the model training service."""
         # Ensure model directory exists
-        os.makedirs(os.path.dirname(settings.MODEL_PATH), exist_ok=True)
+        os.makedirs(os.path.dirname(settings.BASIC_MODEL_PATH), exist_ok=True)
     
     def train_basic_model(self, test_size: float = 0.2, random_state: int = 42) -> Dict[str, Any]:
         """Train the basic fish species prediction model."""
@@ -93,7 +93,7 @@ class ModelTrainingService:
         result = {}
         
         # Check basic model
-        basic_model_path = settings.MODEL_PATH
+        basic_model_path = settings.BASIC_MODEL_PATH
         if os.path.exists(basic_model_path):
             basic_model = BasicFishPredictionModel()
             result["basic"] = {
@@ -103,8 +103,8 @@ class ModelTrainingService:
         else:
             result["basic"] = {"status": "not_trained"}
         
-        # Check advanced model (using the same path for now)
-        advanced_model_path = settings.MODEL_PATH
+        # Check advanced model
+        advanced_model_path = settings.ADVANCED_MODEL_PATH
         if os.path.exists(advanced_model_path):
             advanced_model = AdvancedFishPredictionModel()
             result["advanced"] = {

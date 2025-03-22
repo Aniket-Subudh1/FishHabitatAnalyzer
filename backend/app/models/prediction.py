@@ -17,7 +17,8 @@ class BasePredictionModel:
         self.scaler = None
         self.feature_names = None
         self.target_name = None
-        self.model_path = model_path or settings.MODEL_PATH
+        self.model_path = model_path
+        self.model_info = {}
         
         # Try to load the model if it exists
         if os.path.exists(self.model_path):
@@ -98,6 +99,11 @@ class BasePredictionModel:
 
 class BasicFishPredictionModel(BasePredictionModel):
     """Model for predicting fish species based on basic water parameters."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        # Override with basic-specific path
+        model_path = model_path or settings.BASIC_MODEL_PATH
+        super().__init__(model_path)
     
     def train(self, data_path: str = None, test_size: float = 0.2, random_state: int = 42) -> Dict:
         """Train the model using the simplified dataset."""
@@ -190,6 +196,11 @@ class BasicFishPredictionModel(BasePredictionModel):
 
 class AdvancedFishPredictionModel(BasePredictionModel):
     """Model for predicting fish species based on comprehensive water parameters."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        # Override with advanced-specific path
+        model_path = model_path or settings.ADVANCED_MODEL_PATH
+        super().__init__(model_path)
     
     def train(self, data_path: str = None, test_size: float = 0.2, random_state: int = 42) -> Dict:
         """Train the model using the comprehensive dataset."""
@@ -284,7 +295,9 @@ class AdvancedFishPredictionModel(BasePredictionModel):
             'accuracy': accuracy,
             'f1_score': f1,
             'training_time': training_time,
-            'model_path': self.model_path
+            'model_path': self.model_path,
+            'accuracy': None,  
+            'f1_score': None
         }
     
     def get_parameter_influence(self) -> Dict:
