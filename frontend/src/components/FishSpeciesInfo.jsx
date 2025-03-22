@@ -1,10 +1,10 @@
 "use client"
+
 import { useState } from "react"
-import { ChevronDown, ChevronRight } from 'lucide-react'
+import { ChevronDown, ChevronRight } from "lucide-react"
 
 const FishSpeciesInfo = ({ species }) => {
   const [expanded, setExpanded] = useState(false)
-
 
   if (!species) return null
 
@@ -65,3 +65,4 @@ const FishSpeciesInfo = ({ species }) => {
 }
 
 export default FishSpeciesInfo
+
