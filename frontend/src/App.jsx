@@ -12,6 +12,7 @@ function App() {
   const [predictionMode, setPredictionMode] = useState('basic'); 
   const [predictionResult, setPredictionResult] = useState(null);
   const [parameterInfluence, setParameterInfluence] = useState(null);
+  const [currentFormValues, setCurrentFormValues] = useState(null);
 
   useEffect(() => {
     const fetchModelStatus = async () => {
@@ -42,6 +43,7 @@ function App() {
   const handleModeChange = (mode) => {
     setPredictionMode(mode);
     setPredictionResult(null);
+    setCurrentFormValues(null);
   };
 
   const handleTrainModel = async (modelType) => {
@@ -87,6 +89,10 @@ function App() {
     }
   };
 
+  const handleFormValueChange = (values) => {
+    setCurrentFormValues(values);
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
       <header className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md">
@@ -123,6 +129,7 @@ function App() {
           loading={loading}
           parameterInfluence={parameterInfluence}
           predictionResult={predictionResult}
+          currentFormValues={currentFormValues}
         />
 
         <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -132,6 +139,7 @@ function App() {
               onSubmit={handlePrediction}
               loading={loading}
               parameterInfluence={parameterInfluence}
+              onFormChange={handleFormValueChange}
             />
           </div>
           <div>

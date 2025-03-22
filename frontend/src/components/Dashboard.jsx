@@ -8,7 +8,8 @@ const Dashboard = ({
   onModeChange, 
   loading,
   parameterInfluence,
-  predictionResult
+  predictionResult,
+  currentFormValues  
 }) => {
   const getStatusBadge = (status) => {
     if (status === 'available') {
@@ -202,6 +203,7 @@ const Dashboard = ({
           predictionMode={predictionMode} 
           parameterInfluence={parameterInfluence}
           predictionResult={predictionResult}
+          currentFormValues={currentFormValues}  
         />
       </div>
     </div>

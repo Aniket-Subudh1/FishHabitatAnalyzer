@@ -4,14 +4,14 @@ import {
   ResponsiveContainer, Legend, ReferenceLine, Label
 } from 'recharts';
 
-const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResult }) => {
+const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResult, currentFormValues }) => {
   const [chartData, setChartData] = useState([]);
   const [chartTheme, setChartTheme] = useState({
-    primary: '#6366F1', 
+    primary: '#6366F1',
     secondary: '#A5B4FC', 
     optimal: '#10B981', 
     suboptimal: '#F59E0B', 
-    background: '#F9FAFB',
+    background: '#F9FAFB', 
     text: '#1F2937', 
   });
 
@@ -23,7 +23,9 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
     }
 
     const { optimal_ranges } = parameterInfluence;
-    const actualValues = predictionResult?.parameter_analysis || {};
+    
+   
+    const actualValues = getCurrentValues();
     
     const newData = [];
     
@@ -34,18 +36,25 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
       
       const displayName = formatParameterName(param);
       
+      const value = getValueForParameter(param, actualValues);
+      
+      const status = value !== null ? 
+        (value >= range[0] && value <= range[1] ? 'optimal' : 'suboptimal') : 
+        null;
+      
       const dataPoint = {
         name: displayName,
         optimalMin: range[0],
         optimalMax: range[1],
-        optimal: range, // For tooltip
-        current: actualValues[param]?.value || null,
-        status: actualValues[param]?.status || null
+        optimal: range, 
+        current: value,
+        status: status
       };
       
       newData.push(dataPoint);
     }
     
+
     if (parameterInfluence.parameter_importance) {
       newData.sort((a, b) => {
         const paramA = deformatParameterName(a.name);
@@ -55,8 +64,10 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
       });
     }
     
+
     setChartData(newData.slice(0, 6));
-  }, [predictionMode, parameterInfluence, predictionResult]);
+  }, [predictionMode, parameterInfluence, predictionResult, currentFormValues]);
+
 
   const getDefaultData = () => {
     if (predictionMode === 'basic') {
@@ -76,6 +87,75 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
     }
   };
   
+  const getCurrentValues = () => {
+    if (currentFormValues) {
+      const analysis = {};
+      
+
+      if ('ph' in currentFormValues) {
+        analysis.ph = { value: currentFormValues.ph };
+      }
+      if ('temperature' in currentFormValues) {
+        analysis.temperature = { value: currentFormValues.temperature };
+      }
+      if ('turbidity' in currentFormValues) {
+        analysis.turbidity = { value: currentFormValues.turbidity };
+      }
+      
+
+      if ('DO' in currentFormValues) {
+        analysis.dissolved_oxygen = { value: currentFormValues.DO };
+      }
+      if ('bod' in currentFormValues) {
+        analysis.bod = { value: currentFormValues.bod };
+      }
+      if ('co2' in currentFormValues) {
+        analysis.co2 = { value: currentFormValues.co2 };
+      }
+      if ('alkalinity' in currentFormValues) {
+        analysis.alkalinity = { value: currentFormValues.alkalinity };
+      }
+      if ('hardness' in currentFormValues) {
+        analysis.hardness = { value: currentFormValues.hardness };
+      }
+      if ('calcium' in currentFormValues) {
+        analysis.calcium = { value: currentFormValues.calcium };
+      }
+      if ('ammonia' in currentFormValues) {
+        analysis.ammonia = { value: currentFormValues.ammonia };
+      }
+      if ('nitrite' in currentFormValues) {
+        analysis.nitrite = { value: currentFormValues.nitrite };
+      }
+      if ('phosphorus' in currentFormValues) {
+        analysis.phosphorus = { value: currentFormValues.phosphorus };
+      }
+      if ('h2s' in currentFormValues) {
+        analysis.h2s = { value: currentFormValues.h2s };
+      }
+      if ('plankton' in currentFormValues) {
+        analysis.plankton = { value: currentFormValues.plankton };
+      }
+      
+      return analysis;
+    }
+    
+    if (predictionResult?.parameter_analysis) {
+      return predictionResult.parameter_analysis;
+    }
+    
+    return {};
+  };
+  
+ 
+  const getValueForParameter = (param, values) => {
+    if (values && values[param] && values[param].value !== undefined) {
+      return values[param].value;
+    }
+    return null;
+  };
+  
+
   const formatParameterName = (param) => {
     const nameMap = {
       'ph': 'pH',
@@ -97,6 +177,7 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
     return nameMap[param] || param.charAt(0).toUpperCase() + param.slice(1).replace('_', ' ');
   };
   
+
   const deformatParameterName = (displayName) => {
     const reverseMap = {
       'pH': 'ph',
@@ -118,8 +199,10 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
     return reverseMap[displayName] || displayName.toLowerCase().replace(' ', '_');
   };
 
+
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
+
       const dataPoint = chartData.find(item => item.name === label);
       if (!dataPoint) return null;
       
@@ -157,16 +240,20 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
     return null;
   };
 
+
   const getYAxisDomain = () => {
     if (!chartData || chartData.length === 0) return [0, 100];
     
+
     let min = Infinity;
     let max = -Infinity;
     
     chartData.forEach(item => {
+
       min = Math.min(min, item.optimalMin);
       max = Math.max(max, item.optimalMax);
       
+ 
       if (item.current !== null) {
         min = Math.min(min, item.current);
         max = Math.max(max, item.current);
@@ -184,9 +271,11 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
       <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-indigo-50 to-blue-50">
         <h3 className="text-lg font-semibold text-gray-800">Water Parameters Analysis</h3>
         <p className="text-sm text-gray-600 mt-1">
-          {predictionResult 
-            ? "Current water parameters compared to optimal ranges" 
-            : "Sample water parameters for visualization"}
+          {currentFormValues 
+            ? "Watching parameter changes in real-time" 
+            : predictionResult 
+              ? "Current water parameters compared to optimal ranges" 
+              : "Sample water parameters for visualization"}
         </p>
       </div>
       
@@ -235,7 +324,6 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
                 </React.Fragment>
               ))}
               
-
               <Bar 
                 dataKey="optimalMax" 
                 fillOpacity={0.2} 
@@ -251,13 +339,13 @@ const WaterQualityChart = ({ predictionMode, parameterInfluence, predictionResul
                 fill="transparent"
                 legendType="none"
               />
-              
-           
+       
               <Bar 
                 dataKey="current" 
                 fill={chartTheme.primary}
                 name="Current Value"
                 radius={[4, 4, 0, 0]}
+                animationDuration={500}
               />
             </BarChart>
           </ResponsiveContainer>
