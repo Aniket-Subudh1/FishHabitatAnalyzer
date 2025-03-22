@@ -12,8 +12,7 @@ class Settings(BaseSettings):
     ALLOWED_ORIGINS: List[str] = ["http://localhost:3000"]
     
     # Model Settings
-    BASIC_MODEL_PATH: str = os.path.join("models", "basic_fish_prediction_model.pkl")
-    ADVANCED_MODEL_PATH: str = os.path.join("models", "advanced_fish_prediction_model.pkl")
+    MODEL_PATH: str = os.path.join("models", "fish_prediction_model.pkl")
     WATER_QUALITY_MODEL_PATH: str = os.path.join("models", "water_quality_model.pkl")
     
     # Data Settings

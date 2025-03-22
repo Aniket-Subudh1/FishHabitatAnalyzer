@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 const FishSpeciesInfo = ({ species }) => {
   const [expanded, setExpanded] = useState(false);
 
+  // If no species data is provided
   if (!species) return null;
 
   const { 
