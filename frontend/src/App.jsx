@@ -9,19 +9,17 @@ function App() {
   const [modelStatus, setModelStatus] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [predictionMode, setPredictionMode] = useState('basic'); // 'basic' or 'advanced'
+  const [predictionMode, setPredictionMode] = useState('basic'); 
   const [predictionResult, setPredictionResult] = useState(null);
   const [parameterInfluence, setParameterInfluence] = useState(null);
 
   useEffect(() => {
-    // Fetch model status on component mount
     const fetchModelStatus = async () => {
       try {
         setLoading(true);
         const status = await apiService.getModelStatus();
         setModelStatus(status);
         
-        // Fetch parameter influence for the current prediction mode
         if (status[predictionMode]?.status === 'available') {
           const influence = predictionMode === 'basic' 
             ? await apiService.getBasicParameterInfluence()
@@ -51,11 +49,9 @@ function App() {
       setLoading(true);
       await apiService.trainModel(modelType);
       
-      // Refresh model status after training
       const status = await apiService.getModelStatus();
       setModelStatus(status);
       
-      // Fetch parameter influence
       if (modelType === predictionMode) {
         const influence = modelType === 'basic'
           ? await apiService.getBasicParameterInfluence()
@@ -76,7 +72,6 @@ function App() {
     try {
       setLoading(true);
       
-      // Use the appropriate prediction endpoint based on the mode
       const result = predictionMode === 'basic'
         ? await apiService.predictBasic(formData)
         : await apiService.predictAdvanced(formData);
@@ -93,18 +88,30 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
-      <header className="bg-blue-600 text-white shadow">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <h1 className="text-3xl font-bold">Fish Habitat Analyzer</h1>
-          <p className="mt-1">Water Quality & Species Prediction System</p>
+    <div className="min-h-screen bg-gradient-to-b from-gray-50 to-gray-100">
+      <header className="bg-gradient-to-r from-indigo-600 to-blue-600 text-white shadow-md">
+        <div className="max-w-7xl mx-auto py-5 px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-3xl font-bold">Fish Habitat Analyzer</h1>
+              <p className="mt-1 text-indigo-100">Water Quality & Species Prediction System</p>
+            </div>
+            <div className="hidden sm:block">
+              <img src="/logo192.png" alt="Logo" className="h-14 w-14" />
+            </div>
+          </div>
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
         {error && (
-          <div className="mb-6 bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
-            <p>{error}</p>
+          <div className="mb-6 bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-md shadow-sm" role="alert">
+            <div className="flex items-center">
+              <svg className="h-5 w-5 mr-2 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <p>{error}</p>
+            </div>
           </div>
         )}
 
@@ -114,9 +121,11 @@ function App() {
           predictionMode={predictionMode}
           onModeChange={handleModeChange}
           loading={loading}
+          parameterInfluence={parameterInfluence}
+          predictionResult={predictionResult}
         />
 
-        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
           <div>
             <PredictionForm 
               mode={predictionMode} 
@@ -134,8 +143,15 @@ function App() {
       </main>
 
       <footer className="bg-gray-800 text-white mt-12">
-        <div className="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8">
-          <p className="text-center">Fish Habitat Analyzer © 2025</p>
+        <div className="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <p className="text-center mb-2 md:mb-0">Fish Habitat Analyzer © 2025</p>
+            <div className="flex space-x-4">
+              <a href="#help" className="text-gray-300 hover:text-white">Help</a>
+              <a href="#about" className="text-gray-300 hover:text-white">About</a>
+              <a href="#contact" className="text-gray-300 hover:text-white">Contact</a>
+            </div>
+          </div>
         </div>
       </footer>
     </div>

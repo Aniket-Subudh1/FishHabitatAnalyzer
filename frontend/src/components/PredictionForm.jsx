@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from 'react';
 
 const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
-  // State for basic form
+
   const [basicForm, setBasicForm] = useState({
     ph: 7.2,
     temperature: 28.5,
     turbidity: 45.2,
   });
 
-  // State for advanced form
+
   const [advancedForm, setAdvancedForm] = useState({
     temperature: 28.5,
     turbidity: 45.2,
@@ -26,12 +26,12 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     plankton: 500.0,
   });
 
-  // Reset form values when mode changes
+
   useEffect(() => {
-    // Reset to defaults when mode changes
+  
   }, [mode]);
 
-  // Handle basic form changes
+
   const handleBasicChange = (e) => {
     const { name, value } = e.target;
     setBasicForm({
@@ -40,7 +40,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     });
   };
 
-  // Handle advanced form changes
+
   const handleAdvancedChange = (e) => {
     const { name, value } = e.target;
     setAdvancedForm({
@@ -49,7 +49,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     });
   };
 
-  // Handle form submission
+  
   const handleSubmit = (e) => {
     e.preventDefault();
     onSubmit(mode === 'basic' ? basicForm : advancedForm);
