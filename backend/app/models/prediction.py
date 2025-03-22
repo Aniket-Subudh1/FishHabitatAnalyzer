@@ -99,6 +99,11 @@ class BasePredictionModel:
 class BasicFishPredictionModel(BasePredictionModel):
     """Model for predicting fish species based on basic water parameters."""
     
+    def __init__(self, model_path: Optional[str] = None):
+        # Use basic model path if available in settings, otherwise use fallback
+        model_path = model_path or getattr(settings, 'BASIC_MODEL_PATH', settings.MODEL_PATH)
+        super().__init__(model_path)
+    
     def train(self, data_path: str = None, test_size: float = 0.2, random_state: int = 42) -> Dict:
         """Train the model using the simplified dataset."""
         from sklearn.model_selection import train_test_split
@@ -186,10 +191,50 @@ class BasicFishPredictionModel(BasePredictionModel):
             'parameter_importance': feature_importance,
             'optimal_ranges': optimal_ranges
         }
+    
+    def predict_rule_based(self, data: Dict[str, float]) -> Dict[str, Any]:
+        """Make a rule-based prediction when the model is not available."""
+        ph = data.get('ph', 7.0)
+        temperature = data.get('temperature', 25.0)
+        turbidity = data.get('turbidity', 50.0)
+        
+        # Default values
+        predicted_species = "Tilapia"  # Default
+        confidence = 0.7
+        
+        # Simple rules for species prediction
+        if 6.5 <= ph <= 7.5 and 25 <= temperature <= 30 and 30 <= turbidity <= 60:
+            predicted_species = "Tilapia"
+            confidence = 0.85
+        elif 6.0 <= ph <= 7.0 and 24 <= temperature <= 28 and 20 <= turbidity <= 50:
+            predicted_species = "Catfish"
+            confidence = 0.80
+        elif 6.5 <= ph <= 8.0 and 20 <= temperature <= 26 and 30 <= turbidity <= 70:
+            predicted_species = "Carp"
+            confidence = 0.75
+        elif 6.5 <= ph <= 8.0 and 10 <= temperature <= 18 and 5 <= turbidity <= 25:
+            predicted_species = "Trout"
+            confidence = 0.90
+        
+        result = {
+            'predicted_species': predicted_species,
+            'confidence': confidence,
+            'probabilities': {
+                predicted_species: confidence,
+                "Other": 1.0 - confidence
+            }
+        }
+        
+        return result
 
 
 class AdvancedFishPredictionModel(BasePredictionModel):
     """Model for predicting fish species based on comprehensive water parameters."""
+    
+    def __init__(self, model_path: Optional[str] = None):
+        # Use advanced model path if available in settings, otherwise use fallback
+        model_path = model_path or getattr(settings, 'ADVANCED_MODEL_PATH', settings.MODEL_PATH)
+        super().__init__(model_path)
     
     def train(self, data_path: str = None, test_size: float = 0.2, random_state: int = 42) -> Dict:
         """Train the model using the comprehensive dataset."""
@@ -451,3 +496,59 @@ class WaterQualityModel(BasePredictionModel):
         prediction = float(self.model.predict(X)[0])
         
         return prediction
+    
+    def predict_rule_based(self, data: Dict[str, float]) -> float:
+        """Calculate water quality score based on key parameters when model isn't available."""
+        score = 0
+        weights = 0
+        
+        # pH
+        if 'ph' in data:
+            ph = data['ph']
+            weight = 2
+            weights += weight
+            if 6.5 <= ph <= 8.0:
+                score += weight * 10  # Excellent
+            elif 6.0 <= ph <= 8.5:
+                score += weight * 8   # Good
+            elif 5.5 <= ph <= 9.0:
+                score += weight * 6   # Fair
+            else:
+                score += weight * 3   # Poor
+        
+        # Temperature
+        if 'temperature' in data:
+            temp = data['temperature']
+            weight = 1.5
+            weights += weight
+            if 20 <= temp <= 28:
+                score += weight * 10  # Excellent
+            elif 18 <= temp <= 30:
+                score += weight * 8   # Good
+            elif 15 <= temp <= 32:
+                score += weight * 6   # Fair
+            else:
+                score += weight * 3   # Poor
+        
+        # Dissolved oxygen
+        if 'dissolved_oxygen' in data:
+            do = data['dissolved_oxygen']
+            weight = 3
+            weights += weight
+            if do >= 7:
+                score += weight * 10  # Excellent
+            elif do >= 5:
+                score += weight * 8   # Good
+            elif do >= 3:
+                score += weight * 5   # Fair
+            else:
+                score += weight * 2   # Poor
+        
+        # Normalize to 0-10 scale
+        if weights > 0:
+            final_score = score / weights
+        else:
+            # Default score if no parameters provided
+            final_score = 5.0
+        
+        return final_score

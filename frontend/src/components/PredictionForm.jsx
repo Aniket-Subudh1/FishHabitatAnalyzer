@@ -36,7 +36,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     const { name, value } = e.target;
     setBasicForm({
       ...basicForm,
-      [name]: parseFloat(value),
+      [name]: parseFloat(value) || 0, // Use 0 if parseFloat returns NaN
     });
   };
 
@@ -45,7 +45,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     const { name, value } = e.target;
     setAdvancedForm({
       ...advancedForm,
-      [name]: parseFloat(value),
+      [name]: parseFloat(value) || 0, // Use 0 if parseFloat returns NaN
     });
   };
 
@@ -77,14 +77,14 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
     if (importance === undefined) return null;
     
     // Calculate width based on importance (normalized)
-    const width = Math.max(5, Math.min(100, importance * 100)); // Min 5%, max 100%
+    const width = Math.max(5, Math.min(100, (importance || 0) * 100)); // Min 5%, max 100%, handle NaN
     
     return (
       <div className="mt-1 h-1 bg-gray-200 rounded">
         <div 
           className="h-1 bg-blue-500 rounded" 
           style={{ width: `${width}%` }}
-          title={`Parameter importance: ${(importance * 100).toFixed(1)}%`}
+          title={`Parameter importance: ${((importance || 0) * 100).toFixed(1)}%`}
         ></div>
       </div>
     );
@@ -111,7 +111,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                 step="0.1"
                 min="0"
                 max="14"
-                value={basicForm.ph}
+                value={isNaN(basicForm.ph) ? '' : basicForm.ph}
                 onChange={handleBasicChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
@@ -130,7 +130,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                 step="0.1"
                 min="0"
                 max="50"
-                value={basicForm.temperature}
+                value={isNaN(basicForm.temperature) ? '' : basicForm.temperature}
                 onChange={handleBasicChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
@@ -149,7 +149,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                 step="0.1"
                 min="0"
                 max="200"
-                value={basicForm.turbidity}
+                value={isNaN(basicForm.turbidity) ? '' : basicForm.turbidity}
                 onChange={handleBasicChange}
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                 required
@@ -172,7 +172,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="14"
-                  value={advancedForm.ph}
+                  value={isNaN(advancedForm.ph) ? '' : advancedForm.ph}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -191,7 +191,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="50"
-                  value={advancedForm.temperature}
+                  value={isNaN(advancedForm.temperature) ? '' : advancedForm.temperature}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -210,7 +210,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="200"
-                  value={advancedForm.turbidity}
+                  value={isNaN(advancedForm.turbidity) ? '' : advancedForm.turbidity}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -229,7 +229,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="20"
-                  value={advancedForm.DO}
+                  value={isNaN(advancedForm.DO) ? '' : advancedForm.DO}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -248,7 +248,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="20"
-                  value={advancedForm.bod}
+                  value={isNaN(advancedForm.bod) ? '' : advancedForm.bod}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -267,7 +267,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   step="0.1"
                   min="0"
                   max="50"
-                  value={advancedForm.co2}
+                  value={isNaN(advancedForm.co2) ? '' : advancedForm.co2}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -286,7 +286,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={advancedForm.alkalinity}
+                  value={isNaN(advancedForm.alkalinity) ? '' : advancedForm.alkalinity}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -304,7 +304,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   type="number"
                   step="0.1"
                   min="0"
-                  value={advancedForm.hardness}
+                  value={isNaN(advancedForm.hardness) ? '' : advancedForm.hardness}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -323,7 +323,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   type="number"
                   step="0.001"
                   min="0"
-                  value={advancedForm.ammonia}
+                  value={isNaN(advancedForm.ammonia) ? '' : advancedForm.ammonia}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
@@ -340,7 +340,7 @@ const PredictionForm = ({ mode, onSubmit, loading, parameterInfluence }) => {
                   type="number"
                   step="0.001"
                   min="0"
-                  value={advancedForm.nitrite}
+                  value={isNaN(advancedForm.nitrite) ? '' : advancedForm.nitrite}
                   onChange={handleAdvancedChange}
                   className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   required
